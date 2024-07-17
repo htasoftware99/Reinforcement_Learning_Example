@@ -77,13 +77,87 @@ for adim in range(1000):
         eski_satir_indeks,eski_sutun_indeks=satir_indeks,sutun_indeks
         satir_indeks,sutun_indeks=hareket_et(satir_indeks, sutun_indeks, hareket_indeks)
         odul=labirent[satir_indeks,sutun_indeks]
-        eski_q_degeri=q_degerleri[eski_satir_indeks,eski_sutun_indeks]
+        eski_q_degeri=q_degerleri[eski_satir_indeks,eski_sutun_indeks,hareket_indeks]
         fark=odul+(azalma_degeri*np.max(q_degerleri[satir_indeks,sutun_indeks])) - eski_q_degeri
         yeni_q_degeri=eski_q_degeri+(ogrenme_orani*fark)
-        q_degerleri[eski_satir_indeks,eski_sutun_indeks]=yeni_q_degeri
+        q_degerleri[eski_satir_indeks,eski_sutun_indeks,hareket_indeks]=yeni_q_degeri
 print("eğitim tamamlandı")
-        
-        
+#%%
+baslangic_satir,baslangic_sutun=input("başlangıç konumu girin örnek 4 6").split()
+baslangic_satir=int(baslangic_satir)
+baslangic_sutun=int(baslangic_sutun)
+enkisarota=en_kisa_yol(int(baslangic_satir), int(baslangic_sutun))
+if not enkisarota:
+    print("girdiğiniz koordinatlar geçersiz")
+else:
+    print("çıkışa giden yol")
+    for i in range(len(enkisarota)):
+        print(enkisarota[i])
+#%%
+import matplotlib.pyplot as plt
+fig, ax = plt.subplots(figsize=(12,12))
+ax.imshow(labirent, cmap='gray')
+ax.set_xticks(range(labirent_sutun_sayisi))
+ax.set_yticks(range(labirent_satir_sayisi))
+ax.grid(color='k', linestyle='-', linewidth=1)
+# Engelleri ve hedefi ekle
+for satir in range(labirent_satir_sayisi):
+    for sutun in range(labirent_sutun_sayisi):
+        if labirent[satir, sutun] == -1:
+            ax.add_artist(plt.Circle((sutun, satir), 0.3, color='r'))
+        elif labirent[satir, sutun] == 100:
+            ax.add_artist(plt.Circle((sutun, satir), 0.3, color='b'))
+# Başlangıç noktasını ekle
+ax.add_artist(plt.Circle((baslangic_sutun, baslangic_satir), 0.3, color='g'))
+for i in range(len(enkisarota) - 1):
+    ax.plot([enkisarota[i][1], enkisarota[i+1][1]],
+            [enkisarota[i][0], enkisarota[i+1][0]], color='b', linewidth=6)
+plt.show()
+#%%
+import matplotlib.pyplot as plt
+import numpy as np
+from IPython.display import clear_output
+import time
+
+def ciz_labirent_ve_ajan_ve_yol(labirent, ajan_konumu, baslangic_konumu, yol):
+    fig, ax = plt.subplots()
+    ax.imshow(labirent, cmap='gray')
+
+
+    for i in range(labirent.shape[0]):
+        for j in range(labirent.shape[1]):
+            if labirent[i, j] == -1:
+                renk = 'green' if (i, j) == baslangic_konumu else 'red'
+                circle = plt.Circle((j, i), 0.3, color=renk)
+                ax.add_patch(circle)
+            elif labirent[i, j] == -100:
+                ax.text(j, i, 'X', ha='center', va='center', color='red', fontsize=8)
+            elif labirent[i, j] == 100:
+                ax.text(j, i, 'Hedef', ha='center', va='center', color='green', fontsize=8)
+
+
+    yol_np = np.array(yol)
+    ax.plot(yol_np[:, 1], yol_np[:, 0], color='blue', linewidth=1)
+
+
+    ax.plot(ajan_konumu[1], ajan_konumu[0], 'bo', markersize=15)
+
+
+    ax.tick_params(axis='x', labelsize=8)
+    ax.tick_params(axis='y', labelsize=8)
+
+    ax.set_aspect('equal', adjustable='box')
+    plt.subplots_adjust(left=0, right=1, top=1, bottom=0)
+    plt.show()
+
+# İlk başta rota çizimi
+ciz_labirent_ve_ajan_ve_yol(labirent, enkisarota[0], (baslangic_satir, baslangic_sutun), enkisarota)
+
+
+for konum in enkisarota[1:]:
+    clear_output(wait=True)  
+    ciz_labirent_ve_ajan_ve_yol(labirent, konum, (baslangic_satir, baslangic_sutun), enkisarota)
+    time.sleep(0.05) 
     
     
     
